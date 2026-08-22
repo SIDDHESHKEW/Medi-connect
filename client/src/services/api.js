@@ -13,10 +13,12 @@ const getAuthHeaders = () => {
 };
 
 const getFullUrl = (endpoint, params = {}) => {
-  const isAbsolute = API_BASE_URL.startsWith('http://') || API_BASE_URL.startsWith('https://');
-  const base = isAbsolute ? API_BASE_URL : `${window.location.origin}${API_BASE_URL}`;
+  const base = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const url = new URL(`${base}${cleanEndpoint}`);
+  const combinedPath = `${base}${cleanEndpoint}`;
+
+  const isAbsolute = combinedPath.startsWith('http://') || combinedPath.startsWith('https://');
+  const url = isAbsolute ? new URL(combinedPath) : new URL(combinedPath, window.location.origin);
 
   Object.keys(params).forEach((key) => {
     if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
@@ -33,7 +35,13 @@ export const api = {
       method: 'GET',
       headers: getAuthHeaders(),
     });
-    const data = await res.json();
+    let data = {};
+    try {
+      const text = await res.text();
+      data = text ? JSON.parse(text) : {};
+    } catch (e) {
+      data = { message: 'Server communication error' };
+    }
     if (!res.ok) {
       throw new Error(data.message || `Request failed with status ${res.status}`);
     }
@@ -47,7 +55,13 @@ export const api = {
       headers: getAuthHeaders(),
       body: JSON.stringify(body),
     });
-    const data = await res.json();
+    let data = {};
+    try {
+      const text = await res.text();
+      data = text ? JSON.parse(text) : {};
+    } catch (e) {
+      data = { message: 'Server communication error' };
+    }
     if (!res.ok) {
       throw new Error(data.message || `Request failed with status ${res.status}`);
     }
@@ -61,7 +75,13 @@ export const api = {
       headers: getAuthHeaders(),
       body: JSON.stringify(body),
     });
-    const data = await res.json();
+    let data = {};
+    try {
+      const text = await res.text();
+      data = text ? JSON.parse(text) : {};
+    } catch (e) {
+      data = { message: 'Server communication error' };
+    }
     if (!res.ok) {
       throw new Error(data.message || `Request failed with status ${res.status}`);
     }
@@ -74,7 +94,13 @@ export const api = {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
-    const data = await res.json();
+    let data = {};
+    try {
+      const text = await res.text();
+      data = text ? JSON.parse(text) : {};
+    } catch (e) {
+      data = { message: 'Server communication error' };
+    }
     if (!res.ok) {
       throw new Error(data.message || `Request failed with status ${res.status}`);
     }
