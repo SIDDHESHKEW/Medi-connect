@@ -153,22 +153,22 @@ export const PharmacyReservationsPage = () => {
                     Reserved on {new Date(res.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} &bull; Expires: {new Date(res.expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
 
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button
-                      type="button"
-                      onClick={() => handleUpdateStatus(res._id, 'cancelled')}
-                      className="btn btn-secondary btn-sm"
-                      style={{ color: 'var(--danger)' }}
-                    >
-                      Cancel Hold
-                    </button>
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', width: '100%', maxWidth: '340px' }}>
                     <button
                       type="button"
                       onClick={() => handleUpdateStatus(res._id, 'collected')}
                       className="btn btn-success btn-sm"
-                      style={{ fontWeight: 700 }}
+                      style={{ fontWeight: 700, flex: '1 1 auto', justifyContent: 'center' }}
                     >
-                      <CheckCircle2 size={15} /> Confirm In-Store Collection
+                      <CheckCircle2 size={15} /> Confirm Collection
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateStatus(res._id, 'cancelled')}
+                      className="btn btn-secondary btn-sm"
+                      style={{ color: 'var(--danger)', flex: '1 1 auto', justifyContent: 'center' }}
+                    >
+                      Cancel Hold
                     </button>
                   </div>
                 </div>

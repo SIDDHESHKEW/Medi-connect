@@ -190,13 +190,13 @@ export const PharmacyInventoryPage = () => {
                   </div>
 
                   {/* 1-Tap Quick Availability Switcher */}
-                  <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--slate-100)', padding: '0.35rem', borderRadius: 'var(--radius-md)' }}>
+                  <div style={{ flex: '1 1 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.35rem', background: 'var(--slate-100)', padding: '0.35rem', borderRadius: 'var(--radius-md)' }}>
                     <button
                       type="button"
                       disabled={isUpdating}
                       onClick={() => handleQuickStatusChange(item.id, 'available')}
                       className={`btn btn-sm ${item.status === 'available' ? 'btn-success' : 'btn-secondary'}`}
-                      style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem' }}
+                      style={{ fontSize: '0.75rem', padding: '0.3rem 0.55rem', flex: '1 1 auto', justifyContent: 'center' }}
                     >
                       <CheckCircle2 size={13} /> Available
                     </button>
@@ -206,9 +206,9 @@ export const PharmacyInventoryPage = () => {
                       disabled={isUpdating}
                       onClick={() => handleQuickStatusChange(item.id, 'low')}
                       className={`btn btn-sm ${item.status === 'low' ? 'btn-warning' : 'btn-secondary'}`}
-                      style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem' }}
+                      style={{ fontSize: '0.75rem', padding: '0.3rem 0.55rem', flex: '1 1 auto', justifyContent: 'center' }}
                     >
-                      <AlertTriangle size={13} /> Low Stock
+                      <AlertTriangle size={13} /> Low
                     </button>
 
                     <button
@@ -216,9 +216,9 @@ export const PharmacyInventoryPage = () => {
                       disabled={isUpdating}
                       onClick={() => handleQuickStatusChange(item.id, 'out')}
                       className={`btn btn-sm ${item.status === 'out' ? 'btn-danger' : 'btn-secondary'}`}
-                      style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem' }}
+                      style={{ fontSize: '0.75rem', padding: '0.3rem 0.55rem', flex: '1 1 auto', justifyContent: 'center' }}
                     >
-                      <XCircle size={13} /> Out of Stock
+                      <XCircle size={13} /> Out
                     </button>
                   </div>
 

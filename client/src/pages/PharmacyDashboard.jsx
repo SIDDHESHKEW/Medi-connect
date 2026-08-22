@@ -183,13 +183,13 @@ export const PharmacyDashboard = () => {
                       </div>
 
                       {/* 1-Click Confirmation Buttons */}
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', width: '100%', maxWidth: '340px' }}>
                         <button
                           type="button"
                           className="btn btn-success"
                           disabled={respondingId === (req._id || req.id)}
                           onClick={() => handleRespond(req._id || req.id, 'available')}
-                          style={{ padding: '0.6rem 1.25rem', fontSize: '0.9rem' }}
+                          style={{ flex: '1 1 auto', padding: '0.6rem 1rem', fontSize: '0.875rem', justifyContent: 'center' }}
                         >
                           <CheckCircle2 size={16} /> Confirm Available
                         </button>
@@ -199,6 +199,7 @@ export const PharmacyDashboard = () => {
                           className="btn btn-danger btn-sm"
                           disabled={respondingId === (req._id || req.id)}
                           onClick={() => handleRespond(req._id || req.id, 'not_available')}
+                          style={{ flex: '1 1 auto', justifyContent: 'center' }}
                         >
                           <XCircle size={14} /> Not Available
                         </button>
