@@ -2,7 +2,11 @@
  * MediConnect API Client Layer
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+    ? 'https://mediconnect-backend-hewn.onrender.com/api'
+    : '/api');
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('mediconnect_token');
