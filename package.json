@@ -1,0 +1,19 @@
+{
+  "name": "mediconnect",
+  "version": "1.0.0",
+  "description": "MediConnect - Last-Mile Medicine Access Full-Stack MVP",
+  "scripts": {
+    "dev": "npm --prefix client run dev",
+    "server": "npm --prefix server start",
+    "client": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "seed": "npm --prefix server run seed"
+  },
+  "keywords": [
+    "mediconnect",
+    "mern",
+    "healthcare"
+  ],
+  "author": "MediConnect Team",
+  "license": "ISC"
+}

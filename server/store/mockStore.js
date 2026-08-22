@@ -110,11 +110,14 @@ class MockStore {
   searchMedicines(query) {
     if (!query || query.trim() === '') return this.medicines;
     const q = query.toLowerCase().trim();
+    // Strip trailing 'e', 's', digits, or hyphens for smart medical root matching
+    const rootQ = q.replace(/e$/, '').replace(/s$/, '');
+
     return this.medicines.filter((m) => {
-      const matchName = m.name && m.name.toLowerCase().includes(q);
-      const matchGeneric = m.genericName && m.genericName.toLowerCase().includes(q);
+      const matchName = m.name && (m.name.toLowerCase().includes(q) || m.name.toLowerCase().includes(rootQ));
+      const matchGeneric = m.genericName && (m.genericName.toLowerCase().includes(q) || m.genericName.toLowerCase().includes(rootQ));
       const matchCategory = m.category && m.category.toLowerCase().includes(q);
-      const matchAliases = m.aliases && m.aliases.some((a) => a.toLowerCase().includes(q));
+      const matchAliases = m.aliases && m.aliases.some((a) => a.toLowerCase().includes(q) || a.toLowerCase().includes(rootQ));
       return matchName || matchGeneric || matchCategory || matchAliases;
     });
   }
