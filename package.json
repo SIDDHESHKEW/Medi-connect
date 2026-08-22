@@ -7,7 +7,7 @@
     "server": "npm --prefix server start",
     "client": "npm --prefix client run dev",
     "postinstall": "npm --prefix client install",
-    "build": "npm --prefix client run build",
+    "build": "npm --prefix client run build && node -e \"require('fs').cpSync('client/dist', 'dist', {recursive: true, force: true})\"",
     "seed": "npm --prefix server run seed"
   },
   "keywords": [
