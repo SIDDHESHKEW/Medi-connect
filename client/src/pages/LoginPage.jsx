@@ -74,18 +74,18 @@ export const LoginPage = () => {
         {/* Demo Fast-Switch Buttons */}
         <div style={{ padding: '1.25rem 2rem 0.5rem', backgroundColor: '#faf5ff', borderBottom: '1px solid #f3e8ff' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 700, color: '#7e22ce', textTransform: 'uppercase', marginBottom: '0.6rem' }}>
-            <Sparkles size={13} /> 1-Click Hackathon Demo Logins
+            <Sparkles size={13} /> 1-Click Fast Login
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             <button
               type="button"
               onClick={() => handleDemoClick('customer')}
               disabled={demoLoading}
               className="btn btn-secondary btn-sm"
-              style={{ fontSize: '0.75rem', padding: '0.4rem', flexDirection: 'column', gap: '2px' }}
+              style={{ fontSize: '0.85rem', padding: '0.5rem', flexDirection: 'column', gap: '3px' }}
             >
-              <User size={14} color="var(--primary-600)" />
-              <span>Customer</span>
+              <User size={16} color="var(--primary-600)" />
+              <span style={{ fontWeight: 600 }}>Login as Customer</span>
             </button>
 
             <button
@@ -93,21 +93,10 @@ export const LoginPage = () => {
               onClick={() => handleDemoClick('pharmacist')}
               disabled={demoLoading}
               className="btn btn-secondary btn-sm"
-              style={{ fontSize: '0.75rem', padding: '0.4rem', flexDirection: 'column', gap: '2px' }}
+              style={{ fontSize: '0.85rem', padding: '0.5rem', flexDirection: 'column', gap: '3px' }}
             >
-              <Store size={14} color="var(--accent-teal)" />
-              <span>Pharmacist</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleDemoClick('admin')}
-              disabled={demoLoading}
-              className="btn btn-secondary btn-sm"
-              style={{ fontSize: '0.75rem', padding: '0.4rem', flexDirection: 'column', gap: '2px' }}
-            >
-              <ShieldCheck size={14} color="var(--slate-700)" />
-              <span>Admin</span>
+              <Store size={16} color="var(--accent-teal)" />
+              <span style={{ fontWeight: 600 }}>Login as Pharmacist</span>
             </button>
           </div>
         </div>
