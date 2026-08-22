@@ -570,6 +570,41 @@ button, input, select, textarea {
 .pulse-dot.dot-low { background-color: var(--warning); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25); }
 .pulse-dot.dot-out { background-color: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25); }
 
+/* Hamburger Menu & Mobile Drawer */
+.mobile-hamburger-btn {
+  display: none;
+  background: var(--slate-100);
+  border: 1px solid var(--slate-200);
+  padding: 0.35rem;
+  border-radius: var(--radius-sm);
+  color: var(--slate-700);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-menu-drawer {
+  display: none;
+}
+
+.mobile-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-md);
+  color: var(--slate-800);
+  font-weight: 500;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.mobile-nav-link:hover, .mobile-nav-link:active {
+  background-color: var(--primary-50);
+  color: var(--primary-700);
+}
+
 /* ==========================================================================
    📱 COMPREHENSIVE RESPONSIVE BREAKPOINTS (Mobile & Tablet Perfection)
    ========================================================================== */
@@ -577,6 +612,30 @@ button, input, select, textarea {
 @media (max-width: 900px) {
   .grid-3, .grid-4 {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .desktop-nav {
+    display: none !important;
+  }
+
+  .mobile-hamburger-btn {
+    display: flex !important;
+  }
+
+  .mobile-menu-drawer {
+    display: block !important;
+    background: #ffffff;
+    border-top: 1px solid var(--slate-200);
+    box-shadow: var(--shadow-lg);
+    animation: fadeIn 0.2s ease;
+  }
+
+  .navbar-container {
+    justify-content: space-between !important;
+    padding: 0.5rem 0.85rem !important;
+    flex-wrap: nowrap !important;
   }
 }
 
@@ -608,25 +667,8 @@ button, input, select, textarea {
     gap: 1rem;
   }
 
-  .navbar-container {
-    padding: 0.6rem 0.85rem;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-
   .nav-brand {
-    font-size: 1.15rem;
-  }
-
-  .nav-links {
-    justify-content: center;
-    gap: 0.4rem;
-    width: 100%;
-  }
-
-  .nav-link {
-    font-size: 0.8125rem;
-    padding: 0.3rem 0.5rem;
+    font-size: 1.1rem;
   }
 
   .modal-overlay {
