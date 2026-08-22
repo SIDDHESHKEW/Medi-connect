@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Activity, Store, User, ArrowRight, Sparkles } from 'lucide-react';
+import { Activity, Store, User, ArrowRight, Sparkles, ChevronDown } from 'lucide-react';
 
 const PHARMACY_DEMO_ACCOUNTS = [
   { name: 'ABC Medical Store', email: 'abc@mediconnect.com' },
@@ -15,7 +15,7 @@ export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [selectedPharm, setSelectedPharm] = useState(PHARMACY_DEMO_ACCOUNTS[0].email);
+  const [selectedPharmIndex, setSelectedPharmIndex] = useState(0);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -55,7 +55,8 @@ export const LoginPage = () => {
   const handlePharmacistFastLogin = async () => {
     setSubmitting(true);
     try {
-      await login(selectedPharm, 'password123');
+      const pharm = PHARMACY_DEMO_ACCOUNTS[selectedPharmIndex];
+      await login(pharm.email, 'password123');
       navigate('/pharmacy/dashboard');
     } catch (err) {
       console.error(err);
@@ -80,52 +81,88 @@ export const LoginPage = () => {
           <h2 style={{ fontSize: '1.3rem', color: 'var(--slate-900)' }}>Log In</h2>
         </div>
 
-        {/* 1-Click Fast Switchers for Hackathon Demo */}
+        {/* 1-Click Fast Switchers - Both Buttons Styled Identically */}
         <div style={{ padding: '1.25rem 1.75rem', backgroundColor: '#f0f9ff', borderBottom: '1px solid #e0f2fe' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary-700)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
             <Sparkles size={13} /> 1-Click Demo Logins
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-            {/* Customer Button */}
+            {/* 1. Customer Demo Button */}
             <button
               type="button"
               onClick={handleCustomerFastLogin}
               disabled={submitting}
               className="btn btn-secondary"
-              style={{ justifyContent: 'space-between', backgroundColor: '#ffffff', border: '1px solid var(--primary-200)', padding: '0.6rem 0.85rem' }}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: '#ffffff',
+                border: '1px solid var(--primary-200)',
+                padding: '0.65rem 0.95rem',
+                width: '100%',
+                borderRadius: 'var(--radius-md)',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+              }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <User size={16} color="var(--primary-600)" />
-                <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Login as Customer</span>
+                <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--slate-800)' }}>Login as Customer</span>
               </div>
-              <span style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Rahul Verma</span>
+              <span style={{ fontSize: '0.78rem', color: 'var(--slate-500)' }}>Rahul Verma</span>
             </button>
 
-            {/* Pharmacist Section */}
-            <div style={{ display: 'flex', gap: '0.4rem' }}>
+            {/* 2. Pharmacist Demo Button (Identical Style) */}
+            <button
+              type="button"
+              onClick={handlePharmacistFastLogin}
+              disabled={submitting}
+              className="btn btn-secondary"
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: '#ffffff',
+                border: '1px solid var(--primary-200)',
+                padding: '0.65rem 0.95rem',
+                width: '100%',
+                borderRadius: 'var(--radius-md)',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Store size={16} color="var(--primary-600)" />
+                <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--slate-800)' }}>Login as Pharmacist</span>
+              </div>
+              <span style={{ fontSize: '0.78rem', color: 'var(--slate-500)' }}>
+                {PHARMACY_DEMO_ACCOUNTS[selectedPharmIndex].name}
+              </span>
+            </button>
+
+            {/* Subtle Pharmacy Switcher */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.35rem', marginTop: '0.15rem' }}>
+              <span style={{ fontSize: '0.72rem', color: 'var(--slate-500)' }}>Switch Store:</span>
               <select
-                className="form-select"
-                style={{ fontSize: '0.85rem', padding: '0.4rem 0.6rem', flex: 1, height: '40px' }}
-                value={selectedPharm}
-                onChange={(e) => setSelectedPharm(e.target.value)}
+                style={{
+                  fontSize: '0.72rem',
+                  padding: '0.15rem 0.4rem',
+                  borderRadius: '4px',
+                  border: '1px solid var(--primary-200)',
+                  backgroundColor: 'transparent',
+                  color: 'var(--primary-800)',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+                value={selectedPharmIndex}
+                onChange={(e) => setSelectedPharmIndex(Number(e.target.value))}
               >
-                {PHARMACY_DEMO_ACCOUNTS.map((p) => (
-                  <option key={p.email} value={p.email}>
+                {PHARMACY_DEMO_ACCOUNTS.map((p, idx) => (
+                  <option key={p.email} value={idx}>
                     {p.name}
                   </option>
                 ))}
               </select>
-
-              <button
-                type="button"
-                onClick={handlePharmacistFastLogin}
-                disabled={submitting}
-                className="btn btn-primary btn-sm"
-                style={{ height: '40px', padding: '0 0.85rem' }}
-              >
-                <Store size={14} /> Log In
-              </button>
             </div>
           </div>
         </div>
