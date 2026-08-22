@@ -15,7 +15,7 @@ exports.getNearbyPharmacies = async (req, res) => {
     const isMongoDB = getDBStatus().connected;
 
     const userCoords =
-      lat && lng ? [parseFloat(lng), parseFloat(lat)] : [72.8350, 19.0596];
+      lat && lng ? [parseFloat(lng), parseFloat(lat)] : [77.4338, 23.2332];
 
     let pharmacies = [];
 
