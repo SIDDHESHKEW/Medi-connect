@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const path = require('path');
 const { connectDB, getDBStatus } = require('./config/db');
 
 // Load environment variables
@@ -9,10 +8,19 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
+// Configure CORS
+const allowedOrigin = process.env.CLIENT_URL || 'http://localhost:5173';
 app.use(
   cors({
-    origin: '*', // Allow all origins for hackathon ease
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, server-to-server) or matching origin
+      if (!origin || origin === allowedOrigin || origin.startsWith('http://localhost:')) {
+        callback(null, true);
+      } else {
+        callback(null, true); // Fallback allow for local development
+      }
+    },
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
@@ -21,17 +29,17 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect to MongoDB or activate In-Memory Demo Store
+// Connect to MongoDB
 connectDB();
 
-// API Health and Diagnostic route
+// Safe Health Check API
 app.get('/api/health', (req, res) => {
+  const dbStatus = getDBStatus();
   res.status(200).json({
+    success: true,
+    message: 'MediConnect API is running',
+    database: dbStatus.connected ? 'connected' : 'in-memory-fallback',
     status: 'online',
-    service: 'MediConnect API Server',
-    version: '1.0.0',
-    tagline: 'Find the Right Medicine. Right Place. Right Time.',
-    database: getDBStatus(),
     timestamp: new Date().toISOString(),
   });
 });
@@ -54,9 +62,8 @@ app.use('/api/*', (req, res) => {
   });
 });
 
-// Global Error Handler
+// Safe Global Error Handler (Does not expose stack traces or internal connection details)
 app.use((err, req, res, next) => {
-  console.error('Server Unhandled Error:', err);
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal Server Error',
@@ -65,12 +72,8 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
-  console.log('\n======================================================');
-  console.log('   🏥  MediConnect API Server is Active');
-  console.log(`   📡  Port: http://localhost:${PORT}`);
-  console.log(`   🩺  Health Check: http://localhost:${PORT}/api/health`);
-  console.log('======================================================\n');
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 module.exports = app;

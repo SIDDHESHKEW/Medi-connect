@@ -12,16 +12,24 @@ const getAuthHeaders = () => {
   };
 };
 
+const getFullUrl = (endpoint, params = {}) => {
+  const isAbsolute = API_BASE_URL.startsWith('http://') || API_BASE_URL.startsWith('https://');
+  const base = isAbsolute ? API_BASE_URL : `${window.location.origin}${API_BASE_URL}`;
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = new URL(`${base}${cleanEndpoint}`);
+
+  Object.keys(params).forEach((key) => {
+    if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+      url.searchParams.append(key, params[key]);
+    }
+  });
+  return url.toString();
+};
+
 export const api = {
   async get(endpoint, params = {}) {
-    const url = new URL(`${API_BASE_URL}${endpoint}`, window.location.origin);
-    Object.keys(params).forEach((key) => {
-      if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
-        url.searchParams.append(key, params[key]);
-      }
-    });
-
-    const res = await fetch(url.toString(), {
+    const url = getFullUrl(endpoint, params);
+    const res = await fetch(url, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
@@ -33,7 +41,8 @@ export const api = {
   },
 
   async post(endpoint, body = {}) {
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const url = getFullUrl(endpoint);
+    const res = await fetch(url, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(body),
@@ -46,7 +55,8 @@ export const api = {
   },
 
   async put(endpoint, body = {}) {
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const url = getFullUrl(endpoint);
+    const res = await fetch(url, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(body),
@@ -59,7 +69,8 @@ export const api = {
   },
 
   async delete(endpoint) {
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const url = getFullUrl(endpoint);
+    const res = await fetch(url, {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
