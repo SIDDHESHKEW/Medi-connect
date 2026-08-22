@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { requestsApi } from '../services/api';
-import { Send, Store, Pill, X, AlertCircle } from 'lucide-react';
+import { Send, Store, Pill, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const RequestModal = ({ isOpen, onClose, pharmacy, medicine, onSuccess }) => {
   const { isAuthenticated, isCustomer } = useAuth();
   const { success, error } = useToast();
   const navigate = useNavigate();
-  const [note, setNote] = useState('Inquiring if this medicine is in stock right now before I travel.');
+  const [note, setNote] = useState('Need availability confirmation before I travel.');
   const [submitting, setSubmitting] = useState(false);
 
   if (!isOpen || !pharmacy || !medicine) return null;
@@ -23,7 +23,7 @@ export const RequestModal = ({ isOpen, onClose, pharmacy, medicine, onSuccess })
     }
 
     if (!isCustomer) {
-      error('Only customer accounts can send availability requests. Please switch or log in as customer.');
+      error('Only customer accounts can send availability requests.');
       return;
     }
 
@@ -35,9 +35,10 @@ export const RequestModal = ({ isOpen, onClose, pharmacy, medicine, onSuccess })
         customerNote: note,
       });
 
-      success('Availability request sent to pharmacist! You will see confirmation in your dashboard.');
+      success('Availability request sent to pharmacist!');
       if (onSuccess) onSuccess(res.data);
       onClose();
+      navigate('/requests');
     } catch (err) {
       error(err.message || 'Failed to send request');
     } finally {
@@ -50,9 +51,9 @@ export const RequestModal = ({ isOpen, onClose, pharmacy, medicine, onSuccess })
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="card-header" style={{ background: 'var(--primary-50)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Send size={18} color="var(--primary-600)" />
-            <h3 style={{ fontSize: '1.1rem', color: 'var(--slate-900)' }}>Request Availability</h3>
+            <h3 style={{ fontSize: '1.05rem', color: 'var(--slate-900)' }}>Request Availability</h3>
           </div>
           <button
             onClick={onClose}
@@ -65,48 +66,41 @@ export const RequestModal = ({ isOpen, onClose, pharmacy, medicine, onSuccess })
         {/* Body */}
         <form onSubmit={handleSubmit}>
           <div className="card-body">
-            <div style={{ backgroundColor: 'var(--slate-50)', padding: '1rem', borderRadius: 'var(--radius-md)', marginBottom: '1.25rem', border: '1px solid var(--slate-200)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem', fontWeight: 600 }}>
+            <div style={{ backgroundColor: 'var(--slate-50)', padding: '0.85rem 1rem', borderRadius: 'var(--radius-md)', marginBottom: '1rem', border: '1px solid var(--slate-200)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem', fontWeight: 700 }}>
                 <Pill size={16} color="var(--primary-600)" />
-                <span>{medicine.name}</span>
-                <span style={{ fontSize: '0.8rem', color: 'var(--slate-500)', fontWeight: 400 }}>({medicine.genericName})</span>
+                <span style={{ fontSize: '1.05rem', color: 'var(--slate-900)' }}>{medicine.name}</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--slate-600)' }}>
-                <Store size={14} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.825rem', color: 'var(--slate-600)' }}>
+                <Store size={13} />
                 <span>{pharmacy.pharmacyName || pharmacy.name}</span>
                 {pharmacy.distanceKm && <span>&bull; {pharmacy.distanceKm} km away</span>}
               </div>
             </div>
 
-            <div className="form-group">
+            <div className="form-group" style={{ marginBottom: '0.75rem' }}>
               <label className="form-label">Note for Pharmacist (Optional)</label>
               <textarea
                 className="form-textarea"
-                rows="3"
+                rows="2"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                placeholder="E.g. Need 2 strips urgently, can visit in 20 mins"
+                placeholder="E.g. Need 2 strips urgently"
               />
-              <p className="form-hint">
-                The pharmacist will receive this instantly on their dashboard and confirm whether it is currently in stock.
-              </p>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--slate-600)', background: 'var(--warning-bg)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--warning-border)' }}>
-              <AlertCircle size={16} color="var(--warning-text)" style={{ flexShrink: 0, marginTop: '2px' }} />
-              <span>
-                <strong>Zero Unnecessary Visits:</strong> Wait for the pharmacist to click <em>Available</em> before you travel!
-              </span>
-            </div>
+            <p style={{ fontSize: '0.8rem', color: 'var(--slate-500)' }}>
+              The pharmacist will receive this in real-time on their terminal to verify physical stock on the counter.
+            </p>
           </div>
 
           {/* Footer */}
-          <div className="card-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+          <div className="card-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
             <button type="button" className="btn btn-secondary" onClick={onClose}>
               Cancel
             </button>
             <button type="submit" className="btn btn-primary" disabled={submitting}>
-              {submitting ? 'Sending Request...' : 'Send Request Now'}
+              {submitting ? 'Sending...' : 'Send Request Now'}
             </button>
           </div>
         </form>

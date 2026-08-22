@@ -1,152 +1,137 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { requestsApi } from '../services/api';
+import { Pill, Store, Clock, CheckCircle2, XCircle, CalendarCheck2, ArrowRight } from 'lucide-react';
 import { ReserveModal } from '../components/ReserveModal';
-import { LoadingSkeleton, EmptyState } from '../components/LoadingSkeleton';
-import { ClipboardList, Store, Pill, CalendarCheck2, Clock, CheckCircle2, XCircle, Search, ArrowRight } from 'lucide-react';
+import { LoadingSkeleton } from '../components/LoadingSkeleton';
+import { Link } from 'react-router-dom';
 
 export const CustomerRequestsPage = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeReserveModal, setActiveReserveModal] = useState({ isOpen: false, pharmacy: null, medicine: null });
 
-  const loadRequests = async () => {
+  const fetchRequests = async (isBackground = false) => {
     try {
-      setLoading(true);
+      if (!isBackground) setLoading(true);
       const res = await requestsApi.getUserRequests();
       setRequests(res.data || []);
     } catch (err) {
       console.error('Error fetching requests:', err);
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadRequests();
+    fetchRequests(false);
+    // Real-time polling every 3.5s so when Pharmacist confirms in Tab 2, Tab 1 updates dynamically
+    const timer = setInterval(() => {
+      fetchRequests(true);
+    }, 3500);
+    return () => clearInterval(timer);
   }, []);
 
   return (
-    <div className="main-content" style={{ backgroundColor: 'var(--slate-50)', padding: '2rem 0 4rem' }}>
-      <div className="container" style={{ maxWidth: '960px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+    <div className="main-content" style={{ backgroundColor: 'var(--slate-50)', padding: '1.5rem 0 3rem' }}>
+      <div className="container" style={{ maxWidth: '800px' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
           <div>
-            <h1 style={{ fontSize: '1.75rem' }}>Your Availability Requests</h1>
-            <p style={{ fontSize: '0.9rem', color: 'var(--slate-500)' }}>
-              Track direct confirmation responses from neighbourhood pharmacists.
+            <h1 style={{ fontSize: '1.4rem', color: 'var(--slate-900)' }}>My Availability Requests</h1>
+            <p style={{ fontSize: '0.85rem', color: 'var(--slate-500)' }}>
+              Live verification status from local pharmacy counters
             </p>
           </div>
-          <Link to="/search" className="btn btn-primary btn-sm">
-            <Search size={15} /> Search More Medicines
+          <Link to="/search" className="btn btn-secondary btn-sm">
+            + Search Medicine
           </Link>
         </div>
 
+        {/* Requests List */}
         {loading ? (
           <LoadingSkeleton count={3} />
         ) : requests.length === 0 ? (
-          <EmptyState
-            icon={ClipboardList}
-            title="No availability requests yet"
-            description="When you find a medicine with uncertain stock, tap 'Request Availability' to have the pharmacist verify before you travel."
-            actionText="Search Medicine Catalogue"
-            onAction={() => window.location.assign('/search')}
-          />
+          <div className="card" style={{ padding: '3rem 1.5rem', textAlign: 'center', color: 'var(--slate-500)' }}>
+            <Pill size={36} color="var(--slate-300)" style={{ margin: '0 auto 0.75rem' }} />
+            <h3 style={{ fontSize: '1.1rem', color: 'var(--slate-700)', marginBottom: '0.25rem' }}>No Requests Yet</h3>
+            <p style={{ fontSize: '0.85rem', marginBottom: '1.25rem' }}>Search for any medicine and request live stock verification.</p>
+            <Link to="/search" className="btn btn-primary btn-sm">
+              Search Medicines Now
+            </Link>
+          </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {requests.map((req) => {
-              const isAvailable = req.status === 'available';
               const isPending = req.status === 'pending';
-              const isUnavailable = req.status === 'not_available';
+              const isAvailable = req.status === 'available';
+              const isNotAvailable = req.status === 'not_available';
 
               return (
                 <div
-                  key={req._id}
+                  key={req._id || req.id}
                   className="card"
                   style={{
-                    padding: '1.5rem',
+                    padding: '1.15rem 1.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '1rem',
                     borderLeft: `4px solid ${
                       isAvailable ? 'var(--success)' : isPending ? 'var(--warning)' : 'var(--danger)'
                     }`,
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.85rem' }}>
-                      <div
-                        style={{
-                          width: '44px',
-                          height: '44px',
-                          borderRadius: 'var(--radius-md)',
-                          backgroundColor: isAvailable ? 'var(--success-bg)' : isPending ? 'var(--warning-bg)' : 'var(--danger-bg)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: isAvailable ? 'var(--success-text)' : isPending ? 'var(--warning-text)' : 'var(--danger-text)',
-                          flexShrink: 0,
-                        }}
-                      >
-                        <Pill size={22} />
-                      </div>
-                      <div>
-                        <h3 style={{ fontSize: '1.2rem', marginBottom: '0.2rem' }}>{req.medicine?.name}</h3>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--slate-500)' }}>
-                          Generic: {req.medicine?.genericName}
-                        </div>
-                        <div style={{ fontSize: '0.875rem', color: 'var(--slate-700)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.35rem' }}>
-                          <Store size={15} color="var(--primary-600)" />
-                          <strong>{req.pharmacy?.name}</strong>
-                          <span style={{ color: 'var(--slate-400)' }}>&bull; {req.pharmacy?.address}</span>
-                        </div>
-                      </div>
+                  {/* Medicine & Pharmacy Info */}
+                  <div style={{ flex: '1 1 240px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                      <Pill size={16} color="var(--primary-600)" />
+                      <strong style={{ fontSize: '1.1rem', color: 'var(--slate-900)' }}>
+                        {req.medicine?.name}
+                      </strong>
                     </div>
-
-                    {/* Status Badge */}
-                    <div>
-                      {isAvailable && (
-                        <span className="badge badge-success" style={{ fontSize: '0.825rem', padding: '0.35rem 0.75rem' }}>
-                          <CheckCircle2 size={14} /> Confirmed Available
-                        </span>
-                      )}
-                      {isPending && (
-                        <span className="badge badge-warning" style={{ fontSize: '0.825rem', padding: '0.35rem 0.75rem' }}>
-                          <Clock size={14} /> Awaiting Pharmacist
-                        </span>
-                      )}
-                      {isUnavailable && (
-                        <span className="badge badge-danger" style={{ fontSize: '0.825rem', padding: '0.35rem 0.75rem' }}>
-                          <XCircle size={14} /> Not Available
-                        </span>
-                      )}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.825rem', color: 'var(--slate-500)' }}>
+                      <Store size={13} />
+                      <span>{req.pharmacy?.name}</span>
+                      <span>&bull; {new Date(req.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
-                  </div>
-
-                  {/* Notes & Timestamp */}
-                  <div style={{ backgroundColor: 'var(--slate-50)', padding: '0.85rem 1rem', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', color: 'var(--slate-600)', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                    <div>
-                      <strong>Your note:</strong> "{req.customerNote || 'Inquiring availability before traveling'}"
-                    </div>
-                    {req.pharmacistNote && (
-                      <div style={{ color: isAvailable ? 'var(--success-text)' : 'var(--danger-text)', fontWeight: 500 }}>
-                        <strong>Pharmacist response:</strong> "{req.pharmacistNote}"
+                    {req.customerNote && (
+                      <div style={{ fontSize: '0.78rem', color: 'var(--slate-400)', fontStyle: 'italic', marginTop: '0.25rem' }}>
+                        "{req.customerNote}"
                       </div>
                     )}
-                    <div style={{ fontSize: '0.75rem', color: 'var(--slate-400)', marginTop: '0.2rem' }}>
-                      Requested: {new Date(req.createdAt).toLocaleString()}
-                      {req.respondedAt && ` • Confirmed: ${new Date(req.respondedAt).toLocaleTimeString()}`}
-                    </div>
                   </div>
 
-                  {/* Action row */}
-                  {isAvailable && (
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-                      <button
-                        type="button"
-                        className="btn btn-success btn-sm"
-                        onClick={() => setActiveReserveModal({ isOpen: true, pharmacy: req.pharmacy, medicine: req.medicine })}
-                      >
-                        <CalendarCheck2 size={15} /> Reserve Medicine for Pickup <ArrowRight size={14} />
-                      </button>
-                    </div>
-                  )}
+                  {/* Status Indicator & Action */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    {isPending && (
+                      <span className="badge badge-warning" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', padding: '0.35rem 0.65rem' }}>
+                        <Clock size={12} /> Waiting for Confirmation
+                      </span>
+                    )}
+
+                    {isAvailable && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                        <span className="badge badge-success" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', padding: '0.35rem 0.65rem' }}>
+                          <CheckCircle2 size={12} /> AVAILABLE &bull; Confirmed
+                        </span>
+
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          onClick={() => setActiveReserveModal({ isOpen: true, pharmacy: req.pharmacy, medicine: req.medicine })}
+                        >
+                          <CalendarCheck2 size={13} /> Reserve Medicine
+                        </button>
+                      </div>
+                    )}
+
+                    {isNotAvailable && (
+                      <span className="badge badge-danger" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', padding: '0.35rem 0.65rem' }}>
+                        <XCircle size={12} /> Not Available
+                      </span>
+                    )}
+                  </div>
                 </div>
               );
             })}
@@ -156,7 +141,10 @@ export const CustomerRequestsPage = () => {
 
       <ReserveModal
         isOpen={activeReserveModal.isOpen}
-        onClose={() => setActiveReserveModal({ isOpen: false, pharmacy: null, medicine: null })}
+        onClose={() => {
+          setActiveReserveModal({ isOpen: false, pharmacy: null, medicine: null });
+          fetchRequests(true);
+        }}
         pharmacy={activeReserveModal.pharmacy}
         medicine={activeReserveModal.medicine}
       />

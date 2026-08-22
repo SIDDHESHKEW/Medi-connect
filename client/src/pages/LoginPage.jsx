@@ -1,110 +1,139 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Activity, LogIn, Sparkles, User, Store, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Activity, Store, User, ArrowRight, Sparkles } from 'lucide-react';
+
+const PHARMACY_DEMO_ACCOUNTS = [
+  { name: 'ABC Medical Store', email: 'abc@mediconnect.com' },
+  { name: 'HealthPlus Pharmacy', email: 'healthplus@mediconnect.com' },
+  { name: 'City Care Pharmacy', email: 'citycare@mediconnect.com' },
+  { name: 'MediCare Pharmacy', email: 'medicare@mediconnect.com' },
+  { name: 'Apollo Local Care', email: 'apollo@mediconnect.com' },
+];
 
 export const LoginPage = () => {
-  const { login, quickDemoLogin } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [demoLoading, setDemoLoading] = useState(false);
+  const [selectedPharm, setSelectedPharm] = useState(PHARMACY_DEMO_ACCOUNTS[0].email);
 
-  const redirectAfterLogin = (role) => {
-    if (location.state?.from) {
-      navigate(location.state.from.pathname);
-      return;
-    }
-    if (role === 'pharmacist') {
-      navigate('/pharmacy/dashboard');
-    } else if (role === 'admin') {
-      navigate('/admin/dashboard');
-    } else {
-      navigate('/dashboard');
-    }
-  };
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const redirectPath = location.state?.from || '/';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
-      setSubmitting(true);
-      const user = await login(email, password);
-      redirectAfterLogin(user.role);
+      const loggedUser = await login(email, password);
+      if (loggedUser.role === 'pharmacist') {
+        navigate('/pharmacy/dashboard');
+      } else {
+        navigate(redirectPath === '/login' ? '/search' : redirectPath);
+      }
     } catch (err) {
-      // toast shown in context
+      console.error(err);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleDemoClick = async (role) => {
+  const handleCustomerFastLogin = async () => {
+    setSubmitting(true);
     try {
-      setDemoLoading(true);
-      const user = await quickDemoLogin(role);
-      redirectAfterLogin(user.role);
+      await login('customer@mediconnect.com', 'password123');
+      navigate('/search');
     } catch (err) {
-      // toast shown in context
+      console.error(err);
     } finally {
-      setDemoLoading(false);
+      setSubmitting(false);
+    }
+  };
+
+  const handlePharmacistFastLogin = async () => {
+    setSubmitting(true);
+    try {
+      await login(selectedPharm, 'password123');
+      navigate('/pharmacy/dashboard');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="main-content" style={{ backgroundColor: 'var(--slate-50)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 1.5rem' }}>
-      <div className="modal-card" style={{ maxWidth: '480px', width: '100%', boxShadow: 'var(--shadow-xl)' }}>
+    <div className="main-content" style={{ backgroundColor: 'var(--slate-50)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2.5rem 1rem' }}>
+      <div className="card" style={{ maxWidth: '440px', width: '100%', boxShadow: 'var(--shadow-xl)', border: '1px solid var(--slate-200)', borderRadius: 'var(--radius-xl)' }}>
         {/* Header */}
-        <div className="card-header" style={{ flexDirection: 'column', alignItems: 'flex-start', background: 'linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%)', padding: '1.75rem 2rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem' }}>
-            <div className="brand-icon-wrap" style={{ width: '32px', height: '32px' }}>
+        <div style={{ padding: '1.5rem 1.75rem 1rem', textAlign: 'center', borderBottom: '1px solid var(--slate-100)' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+            <div className="brand-icon-wrap" style={{ width: '32px', height: '32px', borderRadius: '8px' }}>
               <Activity size={18} />
             </div>
-            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.25rem' }}>
+            <span style={{ fontWeight: 800, fontSize: '1.25rem' }}>
               Medi<span style={{ color: 'var(--primary-600)' }}>Connect</span>
             </span>
           </div>
-          <h2 style={{ fontSize: '1.4rem' }}>Welcome Back</h2>
-          <p style={{ fontSize: '0.875rem', color: 'var(--slate-500)' }}>
-            Log in to manage requests, reservations, or pharmacy inventory.
-          </p>
+          <h2 style={{ fontSize: '1.3rem', color: 'var(--slate-900)' }}>Log In</h2>
         </div>
 
-        {/* Demo Fast-Switch Buttons */}
-        <div style={{ padding: '1.25rem 2rem 0.5rem', backgroundColor: '#faf5ff', borderBottom: '1px solid #f3e8ff' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 700, color: '#7e22ce', textTransform: 'uppercase', marginBottom: '0.6rem' }}>
-            <Sparkles size={13} /> 1-Click Fast Login
+        {/* 1-Click Fast Switchers for Hackathon Demo */}
+        <div style={{ padding: '1.25rem 1.75rem', backgroundColor: '#f0f9ff', borderBottom: '1px solid #e0f2fe' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary-700)', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
+            <Sparkles size={13} /> 1-Click Demo Logins
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            {/* Customer Button */}
             <button
               type="button"
-              onClick={() => handleDemoClick('customer')}
-              disabled={demoLoading}
-              className="btn btn-secondary btn-sm"
-              style={{ fontSize: '0.85rem', padding: '0.5rem', flexDirection: 'column', gap: '3px' }}
+              onClick={handleCustomerFastLogin}
+              disabled={submitting}
+              className="btn btn-secondary"
+              style={{ justifyContent: 'space-between', backgroundColor: '#ffffff', border: '1px solid var(--primary-200)', padding: '0.6rem 0.85rem' }}
             >
-              <User size={16} color="var(--primary-600)" />
-              <span style={{ fontWeight: 600 }}>Login as Customer</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <User size={16} color="var(--primary-600)" />
+                <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Login as Customer</span>
+              </div>
+              <span style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>Rahul Verma</span>
             </button>
 
-            <button
-              type="button"
-              onClick={() => handleDemoClick('pharmacist')}
-              disabled={demoLoading}
-              className="btn btn-secondary btn-sm"
-              style={{ fontSize: '0.85rem', padding: '0.5rem', flexDirection: 'column', gap: '3px' }}
-            >
-              <Store size={16} color="var(--accent-teal)" />
-              <span style={{ fontWeight: 600 }}>Login as Pharmacist</span>
-            </button>
+            {/* Pharmacist Section */}
+            <div style={{ display: 'flex', gap: '0.4rem' }}>
+              <select
+                className="form-select"
+                style={{ fontSize: '0.85rem', padding: '0.4rem 0.6rem', flex: 1, height: '40px' }}
+                value={selectedPharm}
+                onChange={(e) => setSelectedPharm(e.target.value)}
+              >
+                {PHARMACY_DEMO_ACCOUNTS.map((p) => (
+                  <option key={p.email} value={p.email}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={handlePharmacistFastLogin}
+                disabled={submitting}
+                className="btn btn-primary btn-sm"
+                style={{ height: '40px', padding: '0 0.85rem' }}
+              >
+                <Store size={14} /> Log In
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Login Form */}
-        <form onSubmit={handleSubmit} style={{ padding: '1.5rem 2rem 2rem' }}>
-          <div className="form-group">
-            <label className="form-label">Email Address</label>
+        {/* Standard Form */}
+        <form onSubmit={handleSubmit} style={{ padding: '1.25rem 1.75rem 1.5rem' }}>
+          <div className="form-group" style={{ marginBottom: '1rem' }}>
+            <label className="form-label" style={{ fontSize: '0.825rem' }}>Email Address</label>
             <input
               type="email"
               className="form-input"
@@ -115,8 +144,8 @@ export const LoginPage = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Password</label>
+          <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+            <label className="form-label" style={{ fontSize: '0.825rem' }}>Password</label>
             <input
               type="password"
               className="form-input"
@@ -127,15 +156,12 @@ export const LoginPage = () => {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={submitting || demoLoading} style={{ marginTop: '1.5rem' }}>
-            {submitting ? 'Logging In...' : 'Log In'} <ArrowRight size={16} />
+          <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
+            {submitting ? 'Logging In...' : 'Log In with Credentials'} <ArrowRight size={15} />
           </button>
 
-          <div style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.875rem', color: 'var(--slate-600)' }}>
-            Don't have an account yet?{' '}
-            <Link to="/register" style={{ fontWeight: 600 }}>
-              Create Account
-            </Link>
+          <div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.825rem', color: 'var(--slate-500)' }}>
+            Need an account? <Link to="/register" style={{ fontWeight: 600 }}>Create Account</Link>
           </div>
         </form>
       </div>
